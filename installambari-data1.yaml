@@ -1,0 +1,44 @@
+---
+
+- name: Create a Hortonworks Ambari Data1 Node
+  hosts: localhost
+  vars_files:
+    - vars.yaml
+
+- name: Configure all hosts
+  become: true
+  hosts: ambari-data1
+  tasks:
+  - name: copy hosts file
+    copy: src=hosts.txt dest=/etc/hosts
+  - name: Add Ambari Repo Key
+    apt_key: keyserver=keyserver.ubuntu.com id=B9733A7A07513CAD
+  - name: Check if hadoop folder exists
+    stat: path=/hadoop
+    register: hadoop_folder
+  - name: Format volume
+    filesystem: fstype=ext4 dev=/dev/vdb
+    when: hadoop_folder.stat.exists == False
+  - name: Create /hadoop folder
+    file: path=/hadoop state=directory
+    when: hadoop_folder.stat.exists == False
+  - name: Manage fstab
+    mount: name=/hadoop src=/dev/vdb opts=nobootwait fstype=ext4 state=mounted
+    when: hadoop_folder.stat.exists == False
+
+- name: Install the ambari repo
+  become: true
+  hosts:
+    - "ambari-data1"
+    
+  tasks:
+  - name: Add Ambari Repo
+    apt_repository: repo='deb http://public-repo-1.hortonworks.com/ambari/ubuntu14/2.x/updates/2.2.2.0 Ambari     main' state=present filename='ambari'
+#  - name: upgrade all packages
+#    apt: upgrade=dist update_cache=yes
+  - name: Install Ambari agent
+    shell: sudo apt-get install -y ambari-agent
+  - name: copy ambari-agent.ini
+    copy: src=ambari-agent.ini  dest=/etc/ambari-agent/conf/ambari-agent.ini
+  - name: Start Ambari Agent
+    shell: sudo ambari-agent restart

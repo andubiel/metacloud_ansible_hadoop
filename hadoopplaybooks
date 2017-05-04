@@ -1,0 +1,2 @@
+ansible-playbook -u cloud -i hosts hadoopvm.yaml && ansible-playbook -u cloud -i ambari-master --become -c paramiko installambari-master.yaml && ansible-playbook -u cloud -i ambari-data1 --become -c paramiko installambari-data1.yaml && ansible-playbook -u cloud -i ambari-data2 --become -c paramiko installambari-data2.yaml && ansible-playbook -u cloud -i hosts blueprintcluster.yaml
+

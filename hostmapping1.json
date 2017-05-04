@@ -1,0 +1,30 @@
+{
+  "blueprint" : "multi-node-hdp-cluster",
+  "default_password" : "admin",
+  "host_groups" :[
+    {
+      "name" : "host_group_1",
+      "hosts" : [
+        {
+          "fqdn" : "ambari-master"
+        }
+      ]
+ },         
+  {
+  "name" : "host_group_2", 
+  "hosts" : [
+  { 
+  "fqdn" : "ambari-data1"
+  } 
+  ] 
+  },
+  { 
+ "name" : "host_group_3",
+  "hosts" : [
+  {
+  "fqdn" : "ambari-data2"
+  }
+  ]
+  }
+]
+}

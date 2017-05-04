@@ -1,0 +1,74 @@
+---
+
+- name: Create a Hortonworks Ambari deployment
+  hosts: localhost
+  vars_files:
+    - vars.yaml
+  tasks:
+  - name: test for presence of local keypair
+    stat: path="id_rsa_ambari"
+    register: testenv_keypair_local
+  
+  - name: delete remote keypair
+    os_keypair:
+      name: "ambarikey"
+      state: absent
+    when: not testenv_keypair_local.stat.exists
+  
+
+  - name: delete an instance
+    os_server:
+      name: "{{ item }}"
+      state: absent
+      auth:
+        auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+        username: "{{ lookup('env', 'OS_USERNAME') }}"
+        password: "{{ lookup('env', 'OS_PASSWORD') }}"
+        project_name: "{{ lookup('env', 'OS_TENANT_NAME') }}"
+      image: "{{image}}"
+      security_groups: "{{secgroups}}"
+      flavor: "{{flavor}}"
+      #key_name: "{{key_name}}"
+      key_name: "ambarikey"
+      nics:
+        - net-name: "{{net_name}}"
+      volumes:
+        - "{{item}}-vol"
+      wait: yes
+    register: osinstance
+    with_items:
+      - "ambari-master"
+      - "ambari-data1"
+      - "ambari-data2"   
+  
+  
+  - name: Delete  volumes
+    os_volume:
+      auth:
+        auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+        username: "{{ lookup('env', 'OS_USERNAME') }}"
+        password: "{{ lookup('env', 'OS_PASSWORD') }}"
+        project_name: "{{ lookup('env', 'OS_TENANT_NAME') }}"
+      display_name: "{{ item }}"
+      size: "{{ volsize }}"
+    with_items:
+      - "ambari-master-vol"
+      - "ambari-data1-vol"
+      - "ambari-data2-vol"
+  - name: test for presence of local keypair
+    stat: path="id_rsa_ambari"
+    register: testenv_keypair_local  
+
+  - name: Copy hosts files back
+    shell: sudo cp oldhosts.txt hosts.txt
+
+  - name: Copy ambari-master files back
+    shell: sudo cp oldambari-master ambari-master
+
+  - name: Copy ambari-data1 files back
+    shell: sudo cp oldambari-data1 ambari-data1
+
+
+  - name: Copy ambari-data1 files back
+    shell: sudo cp oldambari-data2 ambari-data2
+
