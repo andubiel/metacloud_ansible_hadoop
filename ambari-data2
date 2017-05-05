@@ -1,0 +1,7 @@
+
+[local]
+localhost ansible_connection=local
+
+
+[ambari-data2]
+ 10.1.1.43 
