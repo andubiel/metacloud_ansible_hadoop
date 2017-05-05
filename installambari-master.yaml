@@ -55,4 +55,8 @@
     copy: src=ambari-agent.ini  dest=/etc/ambari-agent/conf/ambari-agent.ini
   - name: Start Ambari Agent 
     shell: sudo ambari-agent restart
+  - name: Install Git
+    shell: sudo apt-get install -y git
+  - name: Clone MAP Reduce examples from Git
+    shell: git clone https://github.com/wardviaene/hadoop-ops-course.git
 
