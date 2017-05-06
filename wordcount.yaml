@@ -1,6 +1,6 @@
 ---
 
-- name: Create a Hortonworks Ambari deployment
+- name: Create Yarn + Map Reduce wordcount for analytics example
   hosts: localhost
   vars_files:
     - vars.yaml
@@ -14,6 +14,7 @@
     shell: sudo su - hdfs
   - name: Make directory for Cloud
     shell: hadoop fs -mkdir /user/cloud
+    ignore_errors: yes
   - name: Add permissions for Cloud
     shell: hadoop fs -chown cloud:cloud /user/cloud
   - name: exit to cloud user
@@ -22,18 +23,21 @@
 
 
   - name: Upload Constitution.txt to hadoop
+    become_user: cloud
     shell: hadoop fs -put /home/cloud/hadoop-ops-course/data/constitution.txt
+    ignore_errors: yes
   - name: Run Yarn + Map Reduce Client
     become_user: cloud
-    shell: yarn jar /usr/hdp/current/hadoop-mapreduce-client/hadoop-mapreduce-examples.jar wordcount constitution.txt wordcount_output4
-  
+    shell: yarn jar /usr/hdp/current/hadoop-mapreduce-client/hadoop-mapreduce-examples.jar wordcount constitution.txt wordcount_output
+    ignore_errors: yes
   - name: Review word count
     become_user: cloud
-    shell: hadoop fs -cat wordcount_output4/part-r-00000 > wordcount.txt
+    shell: hadoop fs -cat wordcount_output/part-r-00000 > wordcount.txt
   - name: display wordcount.txt
     shell: more wordcount.txt
     register: shell_output2
   - debug: msg="{{ shell_output2.stdout_lines }}"
+
 
 
 
