@@ -20,7 +20,15 @@
   - name: exit to cloud user
     shell: exit
 
-
+  - name: make sure files don't pre-exist
+    become_user: cloud
+    shell: hadoop fs -rm -R constitution.txt
+    ignore_errors: yes
+          
+  - name: make sure files don't pre-exist
+    become_user: cloud
+    shell: hadoop fs -rm -R wordcount_output
+    ignore_errors: yes 
 
   - name: Upload Constitution.txt to hadoop
     become_user: cloud
